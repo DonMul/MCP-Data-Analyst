@@ -41,8 +41,9 @@ class Config:
         if not cls.DB_NAME:
             errors.append("DB_NAME is required")
 
-        if cls.DB_TYPE not in [DbTypes.MYSQL.value, DbTypes.POSTGRESQL.value]:
-            errors.append(f"DB_TYPE must be one of: {DbTypes.MYSQL.value}, {DbTypes.POSTGRESQL.value}")
+        valid_types = [DbTypes.MYSQL.value, DbTypes.POSTGRESQL.value, DbTypes.MSSQL.value, DbTypes.MONGODB.value, DbTypes.SQLITE.value]
+        if cls.DB_TYPE not in valid_types:
+            errors.append(f"DB_TYPE must be one of: {', '.join(valid_types)}")
 
         if errors:
             raise ValueError("Configuration errors:\n" + "\n".join(f"  - {e}" for e in errors))
@@ -50,9 +51,4 @@ class Config:
     @classmethod
     def get_db_type(cls) -> DbTypes:
         """Get the database type as an enum."""
-        if cls.DB_TYPE == DbTypes.MYSQL.value:
-            return DbTypes.MYSQL
-        elif cls.DB_TYPE == DbTypes.POSTGRESQL.value:
-            return DbTypes.POSTGRESQL
-        else:
-            raise ValueError(f"Unsupported DB_TYPE: {cls.DB_TYPE}")
+        return cls.DB_TYPE
