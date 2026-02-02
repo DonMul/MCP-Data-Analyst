@@ -1,0 +1,219 @@
+# MCP Data Analyst
+
+A Model Context Protocol (MCP) server that enables natural language querying of SQL databases using AI. Connect your database and ask questions in plain English - the server will generate and execute SQL queries for you.
+
+## Features
+
+- 🤖 **Natural Language to SQL**: Ask questions in plain English, get SQL results
+- 🔌 **Multiple Database Support**: Works with MySQL and PostgreSQL
+- 📊 **Schema Auto-Discovery**: Automatically scans and caches your database schema
+- 🛠️ **MCP Integration**: Works seamlessly with MCP-compatible clients
+- ⚡ **Efficient**: Connection pooling and schema caching for performance
+
+## Installation
+
+### Prerequisites
+
+- Python 3.12 or higher
+- MySQL or PostgreSQL database
+- OpenAI API key (or compatible API endpoint)
+
+### Setup
+
+1. **Clone the repository**:
+   ```bash
+   cd /path/to/your/workspace
+   ```
+
+2. **Create a virtual environment** (recommended):
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**:
+   
+   Copy the example below and create a `.env` file:
+   ```env
+   # LLM Configuration
+   LLM_API_KEY=your-api-key-here
+   LLM_MODEL=gpt-3.5-turbo
+   LLM_API_URL=https://api.openai.com/v1
+   
+   # Database Configuration
+   DB_TYPE=mysql               # or postgresql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306                # or 5432 for PostgreSQL
+   DB_USER=root
+   DB_PASSWORD=your-password
+   DB_NAME=your-database-name
+   ```
+
+## Usage
+
+### Running the MCP Server
+
+Start the server using the standard MCP stdio transport:
+
+```bash
+python server.py
+```
+
+The server will:
+1. Validate configuration
+2. Connect to your database
+3. Build a schema cache
+4. Start listening for MCP requests
+
+### Available MCP Tools
+
+The server exposes 3 tools that can be called by MCP clients:
+
+#### 1. `query_database_with_prompt`
+Ask questions in natural language and get SQL results.
+
+```python
+# Example: "Show me the top 5 customers by total purchases"
+{
+  "success": true,
+  "query": "SELECT c.name, SUM(o.total) as total_purchases FROM customers c...",
+  "data": [...]
+}
+```
+
+#### 2. `get_database_schema`
+Retrieve the complete database schema.
+
+```python
+{
+  "success": true,
+  "schema": {
+    "users": {
+      "name": "users",
+      "columns": {...}
+    }
+  }
+}
+```
+
+#### 3. `build_db_definition`
+Rebuild the schema cache from the database.
+
+```python
+{
+  "success": true,
+  "message": "Successfully loaded schema for 8 tables",
+  "tables": ["users", "orders", "products", ...]
+}
+```
+
+### Integration with MCP Clients
+
+To use this server with an MCP client (like Claude Desktop), add it to your MCP configuration:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "data-analyst": {
+      "command": "python",
+      "args": ["/path/to/mcp-data-analyst/server.py"],
+      "env": {
+        "LLM_API_KEY": "your-key",
+        "DB_TYPE": "mysql",
+        "DB_HOST": "localhost",
+        "DB_NAME": "your_db"
+      }
+    }
+  }
+}
+```
+
+## Development
+
+### Adding a New Database Type
+
+1. Create a new file in `DataAnalyst/database/Type/` (e.g., `SQLite.py`)
+2. Extend the `BaseDatabase` abstract class
+3. Implement all required methods: `__init__`, `execute_query`, `build_definition`, `close`
+4. Add the new type to `DbTypes` enum
+5. Update `DataAnalyst/database/Type/__init__.py` to export your class
+6. Update `server.py` to handle the new database type
+
+## Examples
+
+### Example 1: Customer Analysis
+```
+Query: "Show me the top 10 customers by total order value"
+
+Generated SQL:
+SELECT c.customer_name, SUM(o.total_amount) as total_value
+FROM customers c
+JOIN orders o ON c.id = o.customer_id
+GROUP BY c.id, c.customer_name
+ORDER BY total_value DESC
+LIMIT 10;
+```
+
+### Example 2: Product Inventory
+```
+Query: "Which products are low in stock (less than 10 units)?"
+
+Generated SQL:
+SELECT product_name, quantity_in_stock
+FROM products
+WHERE quantity_in_stock < 10
+ORDER BY quantity_in_stock ASC;
+```
+
+## Contributing
+
+Contributions are welcome! Please ensure:
+
+1. Code follows PEP 8 style guidelines
+2. All functions have type hints and docstrings
+3. New database types extend `BaseDatabase`
+4. Changes maintain backward compatibility
+
+## License
+
+MIT License
+
+Copyright (c) 2026 MCP Data Analyst Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Support
+
+For issues, questions, or contributions, please open an issue on the repository.
+
+---
+
+**Built with**:
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
+- [FastMCP](https://github.com/modelcontextprotocol/fastmcp)
+- [OpenAI API](https://platform.openai.com/)
