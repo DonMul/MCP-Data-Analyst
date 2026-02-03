@@ -5,17 +5,24 @@ A Model Context Protocol (MCP) server that enables natural language querying of 
 ## Features
 
 - 🤖 **Natural Language to SQL**: Ask questions in plain English, get SQL results
-- 🔌 **Multiple Database Support**: Works with MySQL and PostgreSQL
+- 🔌 **Multiple Database Support**: MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS (MDX), Elasticsearch (SQL), InfluxDB (InfluxQL)
 - 📊 **Schema Auto-Discovery**: Automatically scans and caches your database schema
 - 🛠️ **MCP Integration**: Works seamlessly with MCP-compatible clients
 - ⚡ **Efficient**: Connection pooling and schema caching for performance
+- 🔒 **Read-only by Design**: Only SELECT-style queries are executed
+
+## Query Languages
+
+- **SQL**: MySQL, PostgreSQL, MSSQL, SQLite, Elasticsearch (SQL API)
+- **MDX**: SSAS
+- **InfluxQL**: InfluxDB
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.12 or higher
-- MySQL or PostgreSQL database
+- One of: MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS, Elasticsearch, or InfluxDB
 - OpenAI API key (or compatible API endpoint)
 
 ### Setup
@@ -45,13 +52,15 @@ A Model Context Protocol (MCP) server that enables natural language querying of 
    LLM_MODEL=gpt-3.5-turbo
    LLM_API_URL=https://api.openai.com/v1
    
-   # Database Configuration
-   DB_TYPE=mysql               # or postgresql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306                # or 5432 for PostgreSQL
-   DB_USER=root
-   DB_PASSWORD=your-password
-   DB_NAME=your-database-name
+  # Database Configuration
+  DB_TYPE=mysql               # mysql|postgresql|mssql|mongodb|sqlite|ssas|elasticsearch|influxdb
+  DB_HOST=127.0.0.1
+  DB_PORT=3306                # 5432 (PostgreSQL), 1433 (MSSQL), 27017 (MongoDB), 2383 (SSAS), 9200 (Elasticsearch), 8086 (InfluxDB)
+  DB_USER=root
+  DB_PASSWORD=your-password
+  DB_NAME=your-database-name  # For InfluxDB: database name; for SSAS/Elasticsearch: catalog/index database name
+  # SQLite only
+  # DB_PATH=database.db
    ```
 
 ## Usage

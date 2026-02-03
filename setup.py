@@ -26,10 +26,13 @@ def create_env_file():
     llm_api_url = input("Enter LLM API URL (default: https://api.openai.com/v1): ").strip() or "https://api.openai.com/v1"
     
     print("\nDatabase Configuration:")
-    db_type = input("Enter database type (mysql/postgresql): ").strip().lower()
+    db_type = input(
+        "Enter database type (mysql/postgresql/mssql/mongodb/sqlite/ssas/elasticsearch/influxdb): "
+    ).strip().lower()
     
-    if db_type not in ['mysql', 'postgresql']:
-        print("Error: Database type must be 'mysql' or 'postgresql'")
+    valid_types = ['mysql', 'postgresql', 'mssql', 'mongodb', 'sqlite', 'ssas', 'elasticsearch', 'influxdb']
+    if db_type not in valid_types:
+        print(f"Error: Database type must be one of: {', '.join(valid_types)}")
         return False
     
     db_host = input("Enter database host (default: 127.0.0.1): ").strip() or "127.0.0.1"
@@ -37,9 +40,27 @@ def create_env_file():
     if db_type == 'mysql':
         db_port = input("Enter database port (default: 3306): ").strip() or "3306"
         db_user = input("Enter database user (default: root): ").strip() or "root"
-    else:
+    elif db_type == 'postgresql':
         db_port = input("Enter database port (default: 5432): ").strip() or "5432"
         db_user = input("Enter database user (default: postgres): ").strip() or "postgres"
+    elif db_type == 'mssql':
+        db_port = input("Enter database port (default: 1433): ").strip() or "1433"
+        db_user = input("Enter database user (default: sa): ").strip() or "sa"
+    elif db_type == 'mongodb':
+        db_port = input("Enter database port (default: 27017): ").strip() or "27017"
+        db_user = input("Enter database user (optional): ").strip()
+    elif db_type == 'sqlite':
+        db_port = ""
+        db_user = ""
+    elif db_type == 'ssas':
+        db_port = input("Enter database port (default: 2383): ").strip() or "2383"
+        db_user = input("Enter database user: ").strip()
+    elif db_type == 'elasticsearch':
+        db_port = input("Enter database port (default: 9200): ").strip() or "9200"
+        db_user = input("Enter database user (optional): ").strip()
+    else:  # influxdb
+        db_port = input("Enter database port (default: 8086): ").strip() or "8086"
+        db_user = input("Enter database user: ").strip()
     
     db_password = input("Enter database password: ").strip()
     db_name = input("Enter database name: ").strip()
@@ -57,10 +78,15 @@ def create_env_file():
         f.write(f"\n# Database Configuration\n")
         f.write(f"DB_TYPE={db_type}\n")
         f.write(f"DB_HOST={db_host}\n")
-        f.write(f"DB_PORT={db_port}\n")
-        f.write(f"DB_USER={db_user}\n")
+        if db_port:
+            f.write(f"DB_PORT={db_port}\n")
+        if db_user:
+            f.write(f"DB_USER={db_user}\n")
         f.write(f"DB_PASSWORD={db_password}\n")
         f.write(f"DB_NAME={db_name}\n")
+        if db_type == 'sqlite':
+            db_path = input("Enter SQLite DB path (default: database.db): ").strip() or "database.db"
+            f.write(f"DB_PATH={db_path}\n")
     
     print(f"\n✓ Configuration saved to {env_file}")
     return True
@@ -89,20 +115,45 @@ def test_connection():
     
     try:
         from DataAnalyst.config import Config
-        from DataAnalyst.database.Type import MySQL, PostgreSQL
+        from DataAnalyst.database.Type import (
+            MySQL,
+            PostgreSQL,
+            MSSQL,
+            MongoDB,
+            SQLite,
+            SSAS,
+            Elasticsearch,
+            InfluxDB
+        )
         from DataAnalyst.database.DbTypes import DbTypes
         
         Config.validate()
         
         db_type = Config.get_db_type()
-        if db_type == DbTypes.MYSQL:
+        if db_type == DbTypes.MYSQL.value:
             db = MySQL()
-        else:
+            db.execute_query("SELECT 1")
+        elif db_type == DbTypes.POSTGRESQL.value:
             db = PostgreSQL()
-        
-        # Try a simple query
-        result = db.execute_query("SELECT 1")
-        db.close()
+            db.execute_query("SELECT 1")
+        elif db_type == DbTypes.MSSQL.value:
+            db = MSSQL()
+            db.execute_query("SELECT 1")
+        elif db_type == DbTypes.SQLITE.value:
+            db = SQLite()
+            db.execute_query("SELECT 1")
+        elif db_type == DbTypes.INFLUXDB.value:
+            db = InfluxDB()
+            db.execute_query("SHOW MEASUREMENTS")
+        else:
+            db = MongoDB() if db_type == DbTypes.MONGODB.value else (
+                SSAS() if db_type == DbTypes.SSAS.value else (
+                    Elasticsearch() if db_type == DbTypes.ELASTICSEARCH.value else None
+                )
+            )
+
+        if db:
+            db.close()
         
         print("✓ Database connection successful")
         return True

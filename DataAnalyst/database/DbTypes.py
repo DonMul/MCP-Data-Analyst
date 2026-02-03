@@ -7,3 +7,5 @@ class DbTypes(Enum):
     MONGODB = "mongodb"
     SQLITE = "sqlite"
     SSAS = "ssas"
+    ELASTICSEARCH = "elasticsearch"
+    INFLUXDB = "influxdb"

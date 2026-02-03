@@ -6,7 +6,7 @@ Quick reference guide for the MCP Data Analyst tools.
 
 ### 1. query_database_with_prompt
 
-**Description**: Generate and execute SQL queries from natural language.
+**Description**: Generate and execute read-only queries from natural language (SELECT-only).
 
 **Parameters**:
 - `prompt` (string): Natural language description of what you want to query
@@ -30,12 +30,13 @@ prompt: "Show me the top 5 products by sales"
 - Quick business questions
 - Ad-hoc reporting
 - When you don't know the exact SQL syntax
+  - Works with SQL backends, Elasticsearch SQL, and InfluxQL (InfluxDB)
 
 ---
 
 ### 2. execute_sql_query
 
-**Description**: Execute raw SQL queries directly.
+**Description**: Execute raw queries directly (SELECT-only).
 
 **Parameters**:
 - `query` (string): The SQL query to execute
@@ -58,6 +59,7 @@ query: "SELECT COUNT(*) as total FROM users WHERE created_at > '2024-01-01'"
 - Complex queries with specific syntax
 - Testing SQL statements
 - When you already know the SQL you need
+  - Elasticsearch SQL and InfluxQL are supported as SELECT-only queries
 
 ---
 

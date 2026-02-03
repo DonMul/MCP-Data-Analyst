@@ -14,10 +14,19 @@ from openai import OpenAI
 from DataAnalyst.config import Config
 from DataAnalyst.database import BaseDatabase
 from DataAnalyst.database.DbTypes import DbTypes
-from DataAnalyst.database.Type import MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS
+from DataAnalyst.database.Type import MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS, Elasticsearch, InfluxDB
 
 # Initialize MCP server
-mcp = FastMCP("data-analyst", dependencies=["openai", "mysql-connector-python", "psycopg"])
+mcp = FastMCP(
+    "data-analyst",
+    dependencies=[
+        "openai",
+        "mysql-connector-python",
+        "psycopg",
+        "elasticsearch",
+        "influxdb"
+    ]
+)
 
 # Global state
 _database_instance: BaseDatabase | None = None
@@ -45,6 +54,10 @@ def get_db_connection() -> BaseDatabase:
         _database_instance = SQLite()
     elif db_type == DbTypes.SSAS.value:
         _database_instance = SSAS()
+    elif db_type == DbTypes.ELASTICSEARCH.value:
+        _database_instance = Elasticsearch()
+    elif db_type == DbTypes.INFLUXDB.value:
+        _database_instance = InfluxDB()
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
 
@@ -56,6 +69,8 @@ def build_instructions(schemas: Dict[str, Any]) -> str:
     query_type = "SQL"
     if Config.get_db_type() == DbTypes.SSAS.value:
         query_type = "MDX"
+    elif Config.get_db_type() == DbTypes.INFLUXDB.value:
+        query_type = "InfluxQL"
 
     return f"""You are a {query_type} query generator for a {Config.DB_TYPE} database.
 

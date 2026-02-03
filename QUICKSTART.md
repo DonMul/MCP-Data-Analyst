@@ -23,7 +23,7 @@ mcp-data-analyst/
 │   └── database/       # Database abstraction
 │       ├── BaseDatabase.py
 │       ├── definitions.py
-│       └── Type/       # MySQL, PostgreSQL, etc
+│       └── Type/       # MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS, Elasticsearch, InfluxDB
 └── database/           # Schema cache (auto-generated)
 ```
 
@@ -45,12 +45,14 @@ LLM_MODEL=gpt-3.5-turbo
 LLM_API_URL=https://api.openai.com/v1
 
 # Database
-DB_TYPE=mysql|postgresql
+DB_TYPE=mysql|postgresql|mssql|mongodb|sqlite|ssas|elasticsearch|influxdb
 DB_HOST=localhost
-DB_PORT=3306|5432
+DB_PORT=3306|5432|1433|27017|2383|9200|8086
 DB_USER=root
 DB_PASSWORD=password
 DB_NAME=database_name
+# SQLite only
+# DB_PATH=database.db
 ```
 
 ## 📚 Documentation
@@ -64,7 +66,7 @@ DB_NAME=database_name
 1. ✅ **Module Structure** - Proper Python package with `__init__.py`
 2. ✅ **Code Quality** - Fixed syntax errors, added type hints
 3. ✅ **MCP Server** - Proper implementation with 4 tools
-4. ✅ **Database Support** - Complete MySQL & PostgreSQL
+4. ✅ **Database Support** - MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS, Elasticsearch, InfluxDB
 5. ✅ **Configuration** - Centralized Config class
 6. ✅ **Documentation** - Comprehensive guides
 7. ✅ **Developer Tools** - Setup & test scripts
@@ -114,6 +116,10 @@ build_db_definition()
 - `openai` - LLM integration
 - `mysql-connector-python` - MySQL support
 - `psycopg[binary]` - PostgreSQL support
+- `pyodbc` - MSSQL/SSAS support
+- `pymongo` - MongoDB support
+- `elasticsearch` - Elasticsearch SQL support
+- `influxdb` - InfluxDB InfluxQL support
 
 ---
 
