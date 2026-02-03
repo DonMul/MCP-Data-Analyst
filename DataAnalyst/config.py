@@ -41,7 +41,7 @@ class Config:
         if not cls.DB_NAME:
             errors.append("DB_NAME is required")
 
-        valid_types = [DbTypes.MYSQL.value, DbTypes.POSTGRESQL.value, DbTypes.MSSQL.value, DbTypes.MONGODB.value, DbTypes.SQLITE.value]
+        valid_types = [DbTypes.MYSQL.value, DbTypes.POSTGRESQL.value, DbTypes.MSSQL.value, DbTypes.MONGODB.value, DbTypes.SQLITE.value, DbTypes.SSAS.value]
         if cls.DB_TYPE not in valid_types:
             errors.append(f"DB_TYPE must be one of: {', '.join(valid_types)}")
 

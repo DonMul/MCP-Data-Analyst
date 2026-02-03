@@ -6,3 +6,4 @@ class DbTypes(Enum):
     MSSQL = "mssql"
     MONGODB = "mongodb"
     SQLITE = "sqlite"
+    SSAS = "ssas"

@@ -23,7 +23,7 @@ mcp-data-analyst/
 │   └── database/       # Database abstraction
 │       ├── BaseDatabase.py
 │       ├── definitions.py
-│       └── Type/       # MySQL, PostgreSQL
+│       └── Type/       # MySQL, PostgreSQL, etc
 └── database/           # Schema cache (auto-generated)
 ```
 

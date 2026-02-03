@@ -14,7 +14,7 @@ from openai import OpenAI
 from DataAnalyst.config import Config
 from DataAnalyst.database import BaseDatabase
 from DataAnalyst.database.DbTypes import DbTypes
-from DataAnalyst.database.Type import MySQL, PostgreSQL, MSSQL, MongoDB, SQLite
+from DataAnalyst.database.Type import MySQL, PostgreSQL, MSSQL, MongoDB, SQLite, SSAS
 
 # Initialize MCP server
 mcp = FastMCP("data-analyst", dependencies=["openai", "mysql-connector-python", "psycopg"])
@@ -43,6 +43,8 @@ def get_db_connection() -> BaseDatabase:
         _database_instance = MongoDB()
     elif db_type == DbTypes.SQLITE.value:
         _database_instance = SQLite()
+    elif db_type == DbTypes.SSAS.value:
+        _database_instance = SSAS()
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
 
@@ -51,13 +53,17 @@ def get_db_connection() -> BaseDatabase:
 
 def build_instructions(schemas: Dict[str, Any]) -> str:
     """Build system instructions for the LLM based on database schema."""
-    return f"""You are a SQL query generator for a {Config.DB_TYPE} database.
+    query_type = "SQL"
+    if Config.get_db_type() == DbTypes.SSAS.value
+        query_type = "MDX"
 
-Given the following database schema, generate an appropriate SQL query based on the user's natural language request.
+    return f"""You are a {query_type} query generator for a {Config.DB_TYPE} database.
+
+Given the following database schema, generate an appropriate {query_type} query based on the user's natural language request.
 
 IMPORTANT RESTRICTIONS:
 - Return ONLY SELECT statements. NO INSERT, UPDATE, DELETE, or DDL statements allowed.
-- Return ONLY the SQL query without any markdown formatting, explanations, or additional text.
+- Return ONLY the {query_type} query without any markdown formatting, explanations, or additional text.
 - If the request cannot be satisfied with a SELECT statement, explain why in plain text.
 
 Available tables and columns:
@@ -78,8 +84,8 @@ Optimization Rules (CRITICAL - Always apply these):
 - Avoid LIKE with leading wildcards (e.g., '%text')
 - For date filtering, use range comparisons instead of complex date functions
 
-SQL Syntax Rules:
-- Generate valid {Config.DB_TYPE} SQL syntax
+{query_type} Syntax Rules:
+- Generate valid {Config.DB_TYPE} {query_type} syntax
 - Use proper JOIN clauses when querying multiple tables
 - Include appropriate WHERE clauses for filtering
 - Use ORDER BY only when sorting is implied
