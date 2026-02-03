@@ -54,7 +54,7 @@ def get_db_connection() -> BaseDatabase:
 def build_instructions(schemas: Dict[str, Any]) -> str:
     """Build system instructions for the LLM based on database schema."""
     query_type = "SQL"
-    if Config.get_db_type() == DbTypes.SSAS.value
+    if Config.get_db_type() == DbTypes.SSAS.value:
         query_type = "MDX"
 
     return f"""You are a {query_type} query generator for a {Config.DB_TYPE} database.
