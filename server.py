@@ -33,15 +33,15 @@ def get_db_connection() -> BaseDatabase:
 
     db_type = Config.get_db_type()
     
-    if db_type == DbTypes.MYSQL:
+    if db_type == DbTypes.MYSQL.value:
         _database_instance = MySQL()
-    elif db_type == DbTypes.POSTGRESQL:
+    elif db_type == DbTypes.POSTGRESQL.value:
         _database_instance = PostgreSQL()
-    elif db_type == DbTypes.MSSQL:
+    elif db_type == DbTypes.MSSQL.value:
         _database_instance = MSSQL()
-    elif db_type == DbTypes.MONGODB:
+    elif db_type == DbTypes.MONGODB.value:
         _database_instance = MongoDB()
-    elif db_type == DbTypes.SQLITE:
+    elif db_type == DbTypes.SQLITE.value:
         _database_instance = SQLite()
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
